@@ -255,8 +255,13 @@ button {
   margin-top: 8px;
 }
 
-.line-row.three-cols {
-  grid-template-columns: 1.2fr .8fr 1fr;
+.patient-row {
+  grid-template-columns: 1.2fr .8fr;
+}
+
+.cpf-row {
+  grid-template-columns: 1fr;
+  gap: 0;
 }
 
 .line-row > div,
