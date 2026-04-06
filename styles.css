@@ -162,6 +162,22 @@ button.secondary {
   letter-spacing: .3px;
 }
 
+
+.corner-logo {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24mm;
+  height: 24mm;
+  object-fit: contain;
+  z-index: 2;
+  background: #fff;
+  padding: 1.5mm;
+  border: 1px solid rgba(0,0,0,.18);
+  border-radius: 3mm;
+}
+
+
 .doc-header img {
   width: 100%;
   display: block;

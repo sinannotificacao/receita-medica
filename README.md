@@ -24,6 +24,7 @@ Projeto em HTML, CSS e JavaScript para preencher uma solicitação e imprimir du
 - `styles.css`
 - `script.js`
 - `assets/cabecalho.png`
+- `img/logo.jpg`
 
 ## Publicar no GitHub
 
@@ -35,3 +36,8 @@ git branch -M main
 git remote add origin SEU_REPOSITORIO_GITHUB.git
 git push -u origin main
 ```
+
+
+## Logo
+
+O brasao aparece no canto superior esquerdo de cada via usando o arquivo `img/logo.jpg`.
