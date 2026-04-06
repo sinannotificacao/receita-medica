@@ -13,18 +13,24 @@
       <p>Preencha uma vez e imprima duas cópias lado a lado em uma folha A4 paisagem.</p>
 
       <div class="field full">
-        <label for="nome">Nome do paciente</label>
-        <input id="nome" type="text" placeholder="Digite o nome completo" />
+        <label for="nome">Nome do paciente <span class="required-mark">*</span></label>
+        <input id="nome" type="text" placeholder="Digite o nome completo" required />
+        <small class="hint">Campo obrigatório.</small>
       </div>
 
-      <div class="row two">
+      <div class="row three">
         <div class="field">
           <label for="dn">Data de nascimento</label>
-          <input id="dn" type="text" placeholder="dd/mm/aaaa" />
+          <input id="dn" type="date" />
+        </div>
+        <div class="field">
+          <label for="idade">Idade</label>
+          <input id="idade" type="text" placeholder="Calculada automaticamente" readonly />
         </div>
         <div class="field">
           <label for="cpf">CPF</label>
-          <input id="cpf" type="text" placeholder="000.000.000-00" />
+          <input id="cpf" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" />
+          <small class="hint">Se preenchido, o CPF precisa ser válido.</small>
         </div>
       </div>
 
@@ -38,14 +44,14 @@
         </div>
         <div class="field">
           <label for="dataMarcada">Data marcada</label>
-          <input id="dataMarcada" type="text" placeholder="dd/mm/aaaa" />
+          <input id="dataMarcada" type="date" />
         </div>
       </div>
 
       <div class="row two">
         <div class="field">
           <label for="hora">Hora</label>
-          <input id="hora" type="text" placeholder="00:00" />
+          <input id="hora" type="time" />
         </div>
         <div class="field">
           <label for="local">Local</label>
@@ -64,7 +70,7 @@
       </div>
 
       <div class="actions">
-        <button type="button" onclick="window.print()">Imprimir A4</button>
+        <button type="button" id="printBtn">Imprimir A4</button>
       </div>
     </section>
 
@@ -107,8 +113,9 @@
         <div class="line-block">
           <div><strong>NOME:</strong> <span data-bind="nome"></span></div>
         </div>
-        <div class="line-row">
+        <div class="line-row three-cols">
           <div><strong>DN:</strong> <span data-bind="dn"></span></div>
+          <div><strong>IDADE:</strong> <span data-bind="idade"></span></div>
           <div><strong>CPF:</strong> <span data-bind="cpf"></span></div>
         </div>
       </section>

@@ -44,10 +44,18 @@ body {
   margin: 0 0 22px;
 }
 
-.row.two {
+.row.two,
+.row.three {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+.row.two {
+  grid-template-columns: 1fr 1fr;
+}
+
+.row.three {
+  grid-template-columns: 1.1fr .7fr 1.1fr;
 }
 
 .field { margin-bottom: 16px; }
@@ -68,6 +76,27 @@ body {
 }
 
 .field textarea { resize: vertical; }
+
+.field input[readonly] {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.hint {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.required-mark {
+  color: #b91c1c;
+}
+
+.invalid {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 1px rgba(220, 38, 38, .15);
+}
 .actions { margin-top: 8px; }
 button {
   border: 0;
@@ -190,6 +219,10 @@ button {
   margin-top: 8px;
 }
 
+.line-row.three-cols {
+  grid-template-columns: 1.2fr .8fr 1fr;
+}
+
 .line-row > div,
 .agenda-row > div,
 .local-row {
@@ -279,6 +312,11 @@ button {
 
 @media (max-width: 1200px) {
   .app {
+    grid-template-columns: 1fr;
+  }
+
+  .row.two,
+  .row.three {
     grid-template-columns: 1fr;
   }
 
