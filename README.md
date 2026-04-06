@@ -1,29 +1,37 @@
-# Solicitação SUS - duas vias em A4
+# Solicitação SUS - 2 vias em uma folha A4
 
-Projeto simples em HTML, CSS e JavaScript para preencher dados do paciente e imprimir uma folha A4 com duas vias iguais.
+Projeto em HTML, CSS e JavaScript para preencher uma solicitação e imprimir duas vias na mesma página.
 
-## Campos
-- Nome do paciente
-- Data de nascimento
-- CPF
-- Tipo de solicitação: exame ou consulta
-- Descrição da solicitação
-- Data marcada
-- Hora
-- Local
-- Observações
+## Melhorias desta versão
+
+- opção para imprimir **2 vias normais** ou **via inferior invertida**
+- linha de corte central mais discreta
+- visual mais próximo de formulário oficial
+- preenchimento espelhado automático nas duas vias
+- pronto para impressão em **A4 retrato**
 
 ## Como usar
-1. Baixe ou clone o projeto.
-2. Abra o arquivo `index.html` no navegador.
-3. Preencha os dados.
-4. Clique em **Imprimir A4**.
 
-## Estrutura
-- `index.html`: formulário e layout da folha
-- `styles.css`: visualização e impressão A4
-- `script.js`: espelhamento dos dados nas duas vias
-- `assets/cabecalho.png`: cabeçalho usado no modelo
+1. Abra `index.html` no navegador.
+2. Preencha os campos do paciente e da solicitação.
+3. Escolha o formato das vias.
+4. Clique em `Imprimir A4`.
+5. Na impressão, mantenha escala em 100%.
 
-## Publicar no GitHub Pages
-Basta enviar esses arquivos para um repositório e ativar o GitHub Pages nas configurações do repositório.
+## Arquivos
+
+- `index.html`
+- `styles.css`
+- `script.js`
+- `assets/cabecalho.png`
+
+## Publicar no GitHub
+
+```bash
+git init
+git add .
+git commit -m "Projeto inicial da solicitacao SUS"
+git branch -M main
+git remote add origin SEU_REPOSITORIO_GITHUB.git
+git push -u origin main
+```
