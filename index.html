@@ -54,8 +54,14 @@
           <input id="hora" type="time" />
         </div>
         <div class="field">
-          <label for="local">Local</label>
-          <input id="local" type="text" placeholder="Informe o local" />
+          <div class="label-actions">
+            <label for="localSelect">Local</label>
+            <button type="button" id="openLocationModal" class="icon-btn" title="Cadastrar local" aria-label="Cadastrar local">✏️</button>
+          </div>
+          <select id="localSelect">
+            <option value="">Selecione um local cadastrado</option>
+          </select>
+          <small class="hint">Clique no lápis para cadastrar locais e depois só selecionar.</small>
         </div>
       </div>
 
@@ -91,6 +97,40 @@
     <div class="print-copy"><div class="slip" id="printCopy1"></div></div>
     <div class="print-divider"></div>
     <div class="print-copy"><div class="slip" id="printCopy2"></div></div>
+  </div>
+
+  <div class="modal-backdrop hidden no-print" id="locationModal">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle">
+      <div class="modal-header">
+        <h2 id="locationModalTitle">Cadastrar local</h2>
+        <button type="button" id="closeLocationModal" class="icon-btn close-btn" aria-label="Fechar">×</button>
+      </div>
+
+      <div class="row two modal-row">
+        <div class="field">
+          <label for="localNome">Nome <span class="required-mark">*</span></label>
+          <input id="localNome" type="text" placeholder="Ex.: Policlínica Central" />
+        </div>
+        <div class="field">
+          <label for="localTelefone">Telefone</label>
+          <input id="localTelefone" type="text" placeholder="(37) 99999-9999" />
+        </div>
+      </div>
+
+      <div class="field full">
+        <label for="localEndereco">Endereço <span class="required-mark">*</span></label>
+        <input id="localEndereco" type="text" placeholder="Rua, número, bairro" />
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="saveLocationBtn">Salvar local</button>
+      </div>
+
+      <div class="saved-locations">
+        <h3>Locais cadastrados</h3>
+        <div id="savedLocationsList" class="saved-locations-list"></div>
+      </div>
+    </div>
   </div>
 
   <template id="slipTemplate">

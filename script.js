@@ -7,12 +7,25 @@ const fields = {
   solicitacao: document.getElementById('solicitacao'),
   dataMarcada: document.getElementById('dataMarcada'),
   hora: document.getElementById('hora'),
-  local: document.getElementById('local'),
+  localSelect: document.getElementById('localSelect'),
   obs: document.getElementById('obs'),
 };
 
+const locationFields = {
+  modal: document.getElementById('locationModal'),
+  openBtn: document.getElementById('openLocationModal'),
+  closeBtn: document.getElementById('closeLocationModal'),
+  saveBtn: document.getElementById('saveLocationBtn'),
+  nome: document.getElementById('localNome'),
+  endereco: document.getElementById('localEndereco'),
+  telefone: document.getElementById('localTelefone'),
+  list: document.getElementById('savedLocationsList'),
+};
+
+const STORAGE_KEY = 'sus-locais-cadastrados';
 const printBtn = document.getElementById('printBtn');
 const previewTargets = ['copy1', 'copy2', 'printCopy1', 'printCopy2'];
+let locations = [];
 
 function formatDateBR(value) {
   if (!value) return '';
@@ -47,6 +60,18 @@ function maskCPF(value) {
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 }
 
+function maskPhone(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 10) {
+    return digits
+      .replace(/(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d{4})(\d)/, '$1-$2');
+  }
+  return digits
+    .replace(/(\d{2})(\d)/, '($1) $2')
+    .replace(/(\d{5})(\d)/, '$1-$2');
+}
+
 function isValidCPF(value) {
   const cpf = value.replace(/\D/g, '');
   if (!cpf) return true;
@@ -72,6 +97,21 @@ function isValidCPF(value) {
 function updateDerivedFields() {
   fields.idade.value = calculateAge(fields.dn.value);
   fields.cpf.value = maskCPF(fields.cpf.value);
+  locationFields.telefone.value = maskPhone(locationFields.telefone.value);
+}
+
+function getSelectedLocation() {
+  const id = fields.localSelect.value;
+  return locations.find((item) => item.id === id) || null;
+}
+
+function buildLocationText(location) {
+  if (!location) return '';
+  const pieces = [location.nome, location.endereco];
+  if (location.telefone) {
+    pieces.push(`Tel.: ${location.telefone}`);
+  }
+  return pieces.join(' - ');
 }
 
 function values() {
@@ -84,7 +124,7 @@ function values() {
     solicitacao: fields.solicitacao.value.trim(),
     dataMarcada: formatDateBR(fields.dataMarcada.value),
     hora: fields.hora.value.trim(),
-    local: fields.local.value.trim(),
+    local: buildLocationText(getSelectedLocation()),
     obs: fields.obs.value.trim(),
   };
 }
@@ -113,12 +153,18 @@ function renderAll() {
 function validateLive() {
   const nomeValido = fields.nome.value.trim().length > 0;
   const cpfValido = isValidCPF(fields.cpf.value);
+  const cadastroNomeValido = locationFields.nome.value.trim().length > 0 || locationFields.modal.classList.contains('hidden');
+  const cadastroEnderecoValido = locationFields.endereco.value.trim().length > 0 || locationFields.modal.classList.contains('hidden');
 
   fields.nome.classList.toggle('invalid', !nomeValido);
   fields.cpf.classList.toggle('invalid', !cpfValido);
+  locationFields.nome.classList.toggle('invalid', !cadastroNomeValido);
+  locationFields.endereco.classList.toggle('invalid', !cadastroEnderecoValido);
 
   fields.nome.setCustomValidity(nomeValido ? '' : 'Informe o nome do paciente.');
   fields.cpf.setCustomValidity(cpfValido ? '' : 'Informe um CPF válido.');
+  locationFields.nome.setCustomValidity(cadastroNomeValido ? '' : 'Informe o nome do local.');
+  locationFields.endereco.setCustomValidity(cadastroEnderecoValido ? '' : 'Informe o endereço do local.');
 
   return nomeValido && cpfValido;
 }
@@ -143,9 +189,172 @@ function validateBeforePrint() {
   return true;
 }
 
+function saveLocationsToStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(locations));
+}
+
+function loadLocationsFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    locations = raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    locations = [];
+  }
+}
+
+function refreshLocationSelect() {
+  const previousValue = fields.localSelect.value;
+  fields.localSelect.innerHTML = '<option value="">Selecione um local cadastrado</option>';
+
+  locations.forEach((location) => {
+    const option = document.createElement('option');
+    option.value = location.id;
+    option.textContent = `${location.nome} - ${location.endereco}`;
+    fields.localSelect.appendChild(option);
+  });
+
+  if (locations.some((location) => location.id === previousValue)) {
+    fields.localSelect.value = previousValue;
+  }
+}
+
+function renderLocationList() {
+  locationFields.list.innerHTML = '';
+
+  if (!locations.length) {
+    const empty = document.createElement('div');
+    empty.className = 'saved-location-empty';
+    empty.textContent = 'Nenhum local cadastrado ainda.';
+    locationFields.list.appendChild(empty);
+    return;
+  }
+
+  locations.forEach((location) => {
+    const item = document.createElement('div');
+    item.className = 'saved-location-item';
+
+    const info = document.createElement('div');
+    info.className = 'saved-location-info';
+    info.innerHTML = `
+      <strong>${location.nome}</strong>
+      <span>${location.endereco}</span>
+      ${location.telefone ? `<span>Tel.: ${location.telefone}</span>` : ''}
+    `;
+
+    const controls = document.createElement('div');
+    controls.className = 'saved-location-controls';
+
+    const selectBtn = document.createElement('button');
+    selectBtn.type = 'button';
+    selectBtn.className = 'secondary-btn';
+    selectBtn.textContent = 'Usar';
+    selectBtn.addEventListener('click', () => {
+      fields.localSelect.value = location.id;
+      closeLocationModal();
+      renderAll();
+    });
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'danger-btn';
+    deleteBtn.textContent = 'Excluir';
+    deleteBtn.addEventListener('click', () => {
+      const wasSelected = fields.localSelect.value === location.id;
+      locations = locations.filter((item) => item.id !== location.id);
+      saveLocationsToStorage();
+      refreshLocationSelect();
+      renderLocationList();
+      if (wasSelected) {
+        fields.localSelect.value = '';
+      }
+      renderAll();
+    });
+
+    controls.appendChild(selectBtn);
+    controls.appendChild(deleteBtn);
+    item.appendChild(info);
+    item.appendChild(controls);
+    locationFields.list.appendChild(item);
+  });
+}
+
+function clearLocationForm() {
+  locationFields.nome.value = '';
+  locationFields.endereco.value = '';
+  locationFields.telefone.value = '';
+  validateLive();
+}
+
+function openLocationModal() {
+  locationFields.modal.classList.remove('hidden');
+  renderLocationList();
+  setTimeout(() => locationFields.nome.focus(), 0);
+}
+
+function closeLocationModal() {
+  locationFields.modal.classList.add('hidden');
+  clearLocationForm();
+}
+
+function saveLocation() {
+  const nome = locationFields.nome.value.trim();
+  const endereco = locationFields.endereco.value.trim();
+  const telefone = locationFields.telefone.value.trim();
+
+  locationFields.nome.classList.toggle('invalid', !nome);
+  locationFields.endereco.classList.toggle('invalid', !endereco);
+  locationFields.nome.setCustomValidity(nome ? '' : 'Informe o nome do local.');
+  locationFields.endereco.setCustomValidity(endereco ? '' : 'Informe o endereço do local.');
+
+  if (!nome) {
+    locationFields.nome.reportValidity();
+    locationFields.nome.focus();
+    return;
+  }
+
+  if (!endereco) {
+    locationFields.endereco.reportValidity();
+    locationFields.endereco.focus();
+    return;
+  }
+
+  const location = {
+    id: `${Date.now()}`,
+    nome,
+    endereco,
+    telefone,
+  };
+
+  locations.push(location);
+  saveLocationsToStorage();
+  refreshLocationSelect();
+  renderLocationList();
+  fields.localSelect.value = location.id;
+  closeLocationModal();
+  renderAll();
+}
+
 Object.values(fields).forEach((el) => {
   el.addEventListener('input', renderAll);
   el.addEventListener('change', renderAll);
+});
+
+locationFields.openBtn.addEventListener('click', openLocationModal);
+locationFields.closeBtn.addEventListener('click', closeLocationModal);
+locationFields.saveBtn.addEventListener('click', saveLocation);
+locationFields.telefone.addEventListener('input', renderAll);
+locationFields.nome.addEventListener('input', validateLive);
+locationFields.endereco.addEventListener('input', validateLive);
+locationFields.modal.addEventListener('click', (event) => {
+  if (event.target === locationFields.modal) {
+    closeLocationModal();
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !locationFields.modal.classList.contains('hidden')) {
+    closeLocationModal();
+  }
 });
 
 printBtn.addEventListener('click', () => {
@@ -154,4 +363,7 @@ printBtn.addEventListener('click', () => {
   }
 });
 
+loadLocationsFromStorage();
+refreshLocationSelect();
+renderLocationList();
 renderAll();
