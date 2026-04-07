@@ -3,11 +3,13 @@ const fields = {
   dn: document.getElementById('dn'),
   idade: document.getElementById('idade'),
   cpf: document.getElementById('cpf'),
+  cpfFeedback: document.getElementById('cpfFeedback'),
   tipo: document.getElementById('tipo'),
   solicitacao: document.getElementById('solicitacao'),
   dataMarcada: document.getElementById('dataMarcada'),
   hora: document.getElementById('hora'),
   localSelect: document.getElementById('localSelect'),
+  localPreview: document.getElementById('selectedLocationPreview'),
   obs: document.getElementById('obs'),
 };
 
@@ -94,6 +96,33 @@ function isValidCPF(value) {
   return digit === Number(cpf.charAt(10));
 }
 
+function setInputState(element, state) {
+  element.classList.remove('valid', 'invalid');
+  if (state) {
+    element.classList.add(state);
+  }
+}
+
+function updateCPFVisualState() {
+  const cpfDigits = fields.cpf.value.replace(/\D/g, '');
+  const cpfPreenchido = cpfDigits.length > 0;
+  const cpfValido = isValidCPF(fields.cpf.value);
+
+  setInputState(fields.cpf, cpfPreenchido ? (cpfValido ? 'valid' : 'invalid') : '');
+
+  fields.cpfFeedback.className = 'field-feedback';
+  fields.cpfFeedback.textContent = '';
+
+  if (!cpfPreenchido) {
+    return cpfValido;
+  }
+
+  fields.cpfFeedback.classList.add('show', cpfValido ? 'valid' : 'invalid');
+  fields.cpfFeedback.textContent = cpfValido ? 'CPF válido.' : 'CPF inválido. Confira os números.';
+
+  return cpfValido;
+}
+
 function updateDerivedFields() {
   fields.idade.value = calculateAge(fields.dn.value);
   fields.cpf.value = maskCPF(fields.cpf.value);
@@ -112,6 +141,15 @@ function buildLocationText(location) {
     pieces.push(`Tel.: ${location.telefone}`);
   }
   return pieces.join(' - ');
+}
+
+function updateLocationPreview() {
+  const selectedLocation = getSelectedLocation();
+  const text = buildLocationText(selectedLocation);
+
+  fields.localSelect.title = text || '';
+  fields.localPreview.textContent = text;
+  fields.localPreview.classList.toggle('hidden', !text);
 }
 
 function values() {
@@ -146,20 +184,20 @@ function fillSlip(containerId) {
 
 function renderAll() {
   updateDerivedFields();
+  updateLocationPreview();
   previewTargets.forEach(fillSlip);
   validateLive();
 }
 
 function validateLive() {
   const nomeValido = fields.nome.value.trim().length > 0;
-  const cpfValido = isValidCPF(fields.cpf.value);
+  const cpfValido = updateCPFVisualState();
   const cadastroNomeValido = locationFields.nome.value.trim().length > 0 || locationFields.modal.classList.contains('hidden');
   const cadastroEnderecoValido = locationFields.endereco.value.trim().length > 0 || locationFields.modal.classList.contains('hidden');
 
-  fields.nome.classList.toggle('invalid', !nomeValido);
-  fields.cpf.classList.toggle('invalid', !cpfValido);
-  locationFields.nome.classList.toggle('invalid', !cadastroNomeValido);
-  locationFields.endereco.classList.toggle('invalid', !cadastroEnderecoValido);
+  setInputState(fields.nome, nomeValido ? '' : 'invalid');
+  setInputState(locationFields.nome, cadastroNomeValido ? '' : 'invalid');
+  setInputState(locationFields.endereco, cadastroEnderecoValido ? '' : 'invalid');
 
   fields.nome.setCustomValidity(nomeValido ? '' : 'Informe o nome do paciente.');
   fields.cpf.setCustomValidity(cpfValido ? '' : 'Informe um CPF válido.');
@@ -216,6 +254,14 @@ function refreshLocationSelect() {
   if (locations.some((location) => location.id === previousValue)) {
     fields.localSelect.value = previousValue;
   }
+
+  updateLocationPreview();
+}
+
+function createLocationInfoLine(text, isStrong = false) {
+  const line = document.createElement(isStrong ? 'strong' : 'span');
+  line.textContent = text;
+  return line;
 }
 
 function renderLocationList() {
@@ -235,11 +281,11 @@ function renderLocationList() {
 
     const info = document.createElement('div');
     info.className = 'saved-location-info';
-    info.innerHTML = `
-      <strong>${location.nome}</strong>
-      <span>${location.endereco}</span>
-      ${location.telefone ? `<span>Tel.: ${location.telefone}</span>` : ''}
-    `;
+    info.appendChild(createLocationInfoLine(location.nome, true));
+    info.appendChild(createLocationInfoLine(location.endereco));
+    if (location.telefone) {
+      info.appendChild(createLocationInfoLine(`Tel.: ${location.telefone}`));
+    }
 
     const controls = document.createElement('div');
     controls.className = 'saved-location-controls';
@@ -260,7 +306,7 @@ function renderLocationList() {
     deleteBtn.textContent = 'Excluir';
     deleteBtn.addEventListener('click', () => {
       const wasSelected = fields.localSelect.value === location.id;
-      locations = locations.filter((item) => item.id !== location.id);
+      locations = locations.filter((itemLocation) => itemLocation.id !== location.id);
       saveLocationsToStorage();
       refreshLocationSelect();
       renderLocationList();
@@ -301,8 +347,8 @@ function saveLocation() {
   const endereco = locationFields.endereco.value.trim();
   const telefone = locationFields.telefone.value.trim();
 
-  locationFields.nome.classList.toggle('invalid', !nome);
-  locationFields.endereco.classList.toggle('invalid', !endereco);
+  setInputState(locationFields.nome, nome ? '' : 'invalid');
+  setInputState(locationFields.endereco, endereco ? '' : 'invalid');
   locationFields.nome.setCustomValidity(nome ? '' : 'Informe o nome do local.');
   locationFields.endereco.setCustomValidity(endereco ? '' : 'Informe o endereço do local.');
 
@@ -335,6 +381,7 @@ function saveLocation() {
 }
 
 Object.values(fields).forEach((el) => {
+  if (!el || typeof el.addEventListener !== 'function') return;
   el.addEventListener('input', renderAll);
   el.addEventListener('change', renderAll);
 });

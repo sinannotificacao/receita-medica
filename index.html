@@ -18,7 +18,7 @@
         <small class="hint">Campo obrigatório.</small>
       </div>
 
-      <div class="row three">
+      <div class="row two patient-meta-row">
         <div class="field">
           <label for="dn">Data de nascimento</label>
           <input id="dn" type="date" />
@@ -27,11 +27,13 @@
           <label for="idade">Idade</label>
           <input id="idade" type="text" placeholder="Calculada automaticamente" readonly />
         </div>
-        <div class="field">
-          <label for="cpf">CPF</label>
-          <input id="cpf" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" />
-          <small class="hint">Se preenchido, o CPF precisa ser válido.</small>
-        </div>
+      </div>
+
+      <div class="field full cpf-field">
+        <label for="cpf">CPF</label>
+        <input id="cpf" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" />
+        <div id="cpfFeedback" class="field-feedback" aria-live="polite"></div>
+        <small class="hint">Se preenchido, o CPF precisa ser válido.</small>
       </div>
 
       <div class="row two">
@@ -48,21 +50,21 @@
         </div>
       </div>
 
-      <div class="row two">
-        <div class="field">
-          <label for="hora">Hora</label>
-          <input id="hora" type="time" />
+      <div class="field field-sm">
+        <label for="hora">Hora</label>
+        <input id="hora" type="time" />
+      </div>
+
+      <div class="field full local-field">
+        <div class="label-actions">
+          <label for="localSelect">Local</label>
+          <button type="button" id="openLocationModal" class="icon-btn" title="Cadastrar local" aria-label="Cadastrar local">✏️</button>
         </div>
-        <div class="field">
-          <div class="label-actions">
-            <label for="localSelect">Local</label>
-            <button type="button" id="openLocationModal" class="icon-btn" title="Cadastrar local" aria-label="Cadastrar local">✏️</button>
-          </div>
-          <select id="localSelect">
-            <option value="">Selecione um local cadastrado</option>
-          </select>
-          <small class="hint">Clique no lápis para cadastrar locais e depois só selecionar.</small>
-        </div>
+        <select id="localSelect">
+          <option value="">Selecione um local cadastrado</option>
+        </select>
+        <div id="selectedLocationPreview" class="selected-location-preview hidden" aria-live="polite"></div>
+        <small class="hint">Clique no lápis para cadastrar locais e depois só selecionar.</small>
       </div>
 
       <div class="field full">
@@ -81,6 +83,10 @@
     </section>
 
     <section class="preview-wrap">
+      <div class="preview-header">
+        <strong>Pré-visualização</strong>
+        <span>Role horizontalmente se necessário no celular.</span>
+      </div>
       <div class="sheet landscape" id="sheetPreview">
         <div class="copy">
           <div class="slip" id="copy1"></div>

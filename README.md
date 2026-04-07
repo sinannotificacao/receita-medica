@@ -9,6 +9,14 @@ Projeto simples em HTML, CSS e JavaScript para preencher uma solicitação uma v
 - `script.js`
 - `img/logo.jpg`
 
+## Melhorias desta versão
+
+- Campo CPF reposicionado em linha própria
+- Validação visual elegante do CPF com feedback verde/vermelho
+- Campo Local em linha própria, com área expansível para endereço longo
+- Layout mobile reorganizado para telas pequenas
+- Modal de locais melhor adaptado para celular
+
 ## Como usar
 
 1. Abra o arquivo `index.html` no navegador.
